@@ -1,7 +1,5 @@
 # Bog Standard Error
 
-## Description
-
 A little package to help the programmer to easily produce general-purpose errors with structured and informative messages.
 
 ## Usage
@@ -36,14 +34,13 @@ StdError.illegalState(
  * 
  * Illegal State:
  *   Source: user.space.MySimpleDatabaseConnection
- *   Rule: You cannot execute a query when the targat data source has not been defined.
+ *   Rule: You cannot execute a query when the target data source has not been defined.
  *   What you did wrong: Executed "SELECT * FROM user.audit_table" when the connection string is null.
  *
  * The violation (What you did wrong) argument is optional.
  *
  * There is an override of this method that allows an object reference, so that you can pass is the
  * calling class using a `this` reference.
- *
  */
 
 StdError.illegalState(
