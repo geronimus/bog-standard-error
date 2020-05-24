@@ -63,6 +63,47 @@ class IllegalArgSpec extends AnyFunSpec {
       assert( !error.getMessage.contains( explanation ) )
       assert( error.getMessage.count( _ == '\n' ) == 3 )
     }
+
+    it(
+      "We limit output text to 510 characters. (Paranoid security feature.)"
+    ) {
+
+      def randomString( length : Int ) =
+        ( scala.util.Random.alphanumeric take length ).mkString
+    
+      val tooLongParam = randomString( 511 )
+      val acceptedParam = tooLongParam take 510
+
+      val tooLongExpected = randomString( 511 )
+      val acceptedExpected = tooLongExpected take 510
+
+      val tooLongFound = randomString( 511 )
+      val acceptedFound = tooLongFound take 510
+      
+      val tooLongExplanation = randomString( 511 )
+      val acceptedExplanation = tooLongExplanation take 510
+
+      val error = the [ IllegalArgumentException ] thrownBy {
+        StdError.illegalArg(
+          tooLongParam,
+          tooLongExpected,
+          tooLongFound,
+          tooLongExplanation
+        )  
+      }
+
+      assert( !error.getMessage.contains( tooLongParam ) )
+      assert( error.getMessage.contains( acceptedParam ) )
+
+      assert( !error.getMessage.contains( tooLongExpected ) )
+      assert( error.getMessage.contains( acceptedExpected ) )
+      
+      assert( !error.getMessage.contains( tooLongFound ) )
+      assert( error.getMessage.contains( acceptedFound ) )
+      
+      assert( !error.getMessage.contains( tooLongExplanation ) )
+      assert( error.getMessage.contains( acceptedExplanation ) )
+    }
   }
 }
 

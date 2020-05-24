@@ -21,11 +21,11 @@ object StdError {
     explanation : String = ""
   ) = {
     val message = "Illegal Argument\n  " +
-      s"Parameter: ${ parameter }\n  " +
-      s"Expected: ${ expected }\n  " +
-      s"Found: ${ found }" + {
+      s"Parameter: ${ sanitize( parameter ) }\n  " +
+      s"Expected: ${ sanitize( expected ) }\n  " +
+      s"Found: ${ sanitize( coalesce( found, "null" ).toString ) }" + {
         if ( explanation == null || explanation == "" ) ""
-        else "\n\n" + explanation
+        else "\n\n" + sanitize( explanation )
       }
 
     throw new IllegalArgumentException( message )
@@ -45,10 +45,10 @@ object StdError {
     violation : String = ""
   ) = {
     val message = "Illegal State\n" +
-      s"Source: ${ source }\n  " +
-      s"Rule: ${ rule }" + {
+      s"Source: ${ sanitize( source ) }\n  " +
+      s"Rule: ${ sanitize( rule ) }" + {
         if ( violation == null || violation == "" ) ""
-        else s"\n  What you did wrong: ${ violation }"
+        else s"\n  What you did wrong: ${ sanitize( violation ) }"
       }
   
     throw new IllegalStateException( message )
@@ -68,5 +68,15 @@ object StdError {
     violation : String
   ) : Unit =
     illegalState( source.getClass.getName, rule, violation )
+
+  private def sanitize( str : String ) =
+    if ( str == null ) "null"
+    else str take 510
+
+  private def coalesce( options : Any* ) : Any =
+    if ( options == Nil ) null
+    else if ( options.tail == Nil ) options.head
+    else if ( options.head == null ) coalesce( options.tail: _* )
+    else options.head
 }
 

@@ -55,6 +55,40 @@ class IllegalStateSpec extends AnyFunSpec {
       assert( error.getMessage.contains( rule ) )
       assert( error.getMessage.count( _ == '\n' ) == 2 )
     }
+
+    it(
+      "We limit output text to 510 characters. (Paranoid security feature.)"
+    ) {
+
+      def randomString( length : Int ) =
+        ( scala.util.Random.alphanumeric take length ).mkString
+    
+      val tooLongSource = randomString( 511 )
+      val acceptedSource = tooLongSource take 510
+
+      val tooLongRule = randomString( 511 )
+      val acceptedRule = tooLongRule take 510
+
+      val tooLongViolation = randomString( 511 )
+      val acceptedViolation = tooLongViolation take 510
+
+      val error = the [ IllegalStateException ] thrownBy {
+        StdError.illegalState(
+          tooLongSource,
+          tooLongRule,
+          tooLongViolation
+        )  
+      }
+
+      assert( !error.getMessage.contains( tooLongSource ) )
+      assert( error.getMessage.contains( acceptedSource ) )
+
+      assert( !error.getMessage.contains( tooLongRule ) )
+      assert( error.getMessage.contains( acceptedRule ) )
+      
+      assert( !error.getMessage.contains( tooLongViolation ) )
+      assert( error.getMessage.contains( acceptedViolation ) )
+    }
   }
 
   describe( "StdError.illegalState( source : Object, rule : String[, violation : String ] )" ) {
